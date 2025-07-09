@@ -1,64 +1,92 @@
 import Reserved from "../models/Reserved.js";
 
-// Muestra todas las reservas de un cliente (por clientId en query param)
-export const getAllReservations = async (req, res) => {
+// Obtener todas las reservaciones
+export const getReserveds = async (req, res) => {
   try {
-    const { clientId } = req.query;
-    let query = {};
-    if (clientId) query.clientId = clientId;
-    const reservations = await Reserved.find(query);
-    res.status(200).json(reservations);
+    const reserveds = await Reserved.find();
+    res.status(200).json(reserveds);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener las reservas", error });
+    res.status(500).json({ message: "Error al obtener reservaciones", error });
   }
 };
 
-// Obtiene una reserva por ID
-export const getReservationById = async (req, res) => {
+// Obtener una reservación por ID
+export const getReservedById = async (req, res) => {
   try {
-    const reservation = await Reserved.findById(req.params.id);
-    if (!reservation) return res.status(404).json({ message: "Reserva no encontrada" });
-    res.status(200).json(reservation);
+    const { id } = req.params;
+    const reserved = await Reserved.findById(id);
+    if (!reserved) {
+      return res.status(404).json({ message: "Reservación no encontrada" });
+    }
+    res.status(200).json(reserved);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener la reserva", error });
+    res.status(500).json({ message: "Error al obtener la reservación", error });
   }
 };
 
-// Crea una reserva para un cliente
-export const createReservation = async (req, res) => {
+// Crear una nueva reservación
+export const createReserved = async (req, res) => {
   try {
-    const { clientId, vehicle, service, status } = req.body;
-    const newReservation = new Reserved({ clientId, vehicle, service, status });
-    await newReservation.save();
-    res.status(201).json(newReservation);
+    const reserved = new Reserved(req.body);
+    await reserved.save();
+    res.status(201).json(reserved);
   } catch (error) {
-    res.status(400).json({ message: "Error al crear la reserva", error });
+    res.status(400).json({ message: "Error al crear la reservación", error });
   }
 };
 
-// Actualiza una reserva
-export const updateReservation = async (req, res) => {
+// Actualizar una reservación existente
+export const updateReserved = async (req, res) => {
   try {
-    const { clientId, vehicle, service, status } = req.body;
-    const updatedReservation = await Reserved.findByIdAndUpdate(
-      req.params.id,
-      { clientId, vehicle, service, status },
-      { new: true }
-    );
-    if (!updatedReservation) return res.status(404).json({ message: "Reserva no encontrada" });
-    res.status(200).json(updatedReservation);
+    const { id } = req.params;
+    const updated = await Reserved.findByIdAndUpdate(id, req.body, { new: true });
+    if (!updated) {
+      return res.status(404).json({ message: "Reservación no encontrada" });
+    }
+    res.status(200).json(updated);
   } catch (error) {
-    res.status(400).json({ message: "Error al actualizar la reserva", error });
+    res.status(400).json({ message: "Error al actualizar la reservación", error });
   }
 };
 
-// Elimina una reserva
-export const deleteReservation = async (req, res) => {
+// Eliminar una reservación
+export const deleteReserved = async (req, res) => {
   try {
-    const deletedReservation = await Reserved.findByIdAndDelete(req.params.id);
-    if (!deletedReservation) return res.status(404).json({ message: "Reserva no encontrada" });
-    res.status(200).json({ message: "Reserva eliminada correctamente" });
+    const { id } = req.params;
+    const deleted = await Reserved.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Reservación no encontrada" });
+    }
+    res.status(200).json({ message: "Reservación eliminada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar la reserva", error });
+    res.status(400).json({ message: "Error al eliminar la reservación", error });
+  }
+};
+
+// Buscar reservaciones por vehículo
+export const getReservedsByVehicle = async (req, res) => {
+  try {
+    const { vehicle } = req.params;
+    const reserveds = await Reserved.find({ vehicle });
+    if (reserveds.length === 0) {
+      return res.status(404).json({ message: "No se encontraron reservaciones para ese vehículo" });
+    }
+    res.status(200).json(reserveds);
+  } catch (error) {
+    res.status(500).json({ message: "Error al buscar reservaciones", error });
+  }
+};
+
+// Buscar reservaciones por cliente
+export const getReservedsByClient = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const reserveds = await Reserved.find({ clientId });
+    if (reserveds.length === 0) {
+      return res.status(404).json({ message: "No se encontraron reservaciones para ese cliente" });
+    }
+    res.status(200).json(reserveds);
+  } catch (error) {
+    res.status(500).json({ message: "Error al buscar reservaciones por cliente", error });
   }
 };

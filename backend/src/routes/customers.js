@@ -1,21 +1,18 @@
-
-
-
 import express from "express";
-import customersController from "../controllers/customersController.js";
+import * as customersController from "../controllers/customersController.js";
 import { validateClient } from "../middlewares/validateClient.js";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(customersController.getcustomers)
-  .post(validateClient, customersController.createcustomers); // <--- AQUÍ VA EL MIDDLEWARE
+  .get(customersController.getAllClients)
+  .post(validateClient, customersController.createClient);
 
 router
   .route("/:id")
-  .get(customersController.getcustomerById)
-  .put(customersController.updatecustomers)
-  .delete(customersController.deletecustomers);
+  .get(customersController.getClientById)
+  .put(customersController.updateClient)
+  .delete(customersController.deleteClient);
 
 export default router;
